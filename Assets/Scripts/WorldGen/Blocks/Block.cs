@@ -14,7 +14,7 @@ namespace WorldGen
         public bool isSolid;
 
         //Creates each block at its own respective worldPosition
-        public virtual void LoadBlock(MeshData data, World world)
+        public virtual void LoadBlock(MeshData data, WorldGeneration world)
         {
             //Creates all FaceUp, North, South, East, West Blocks
             MeshUtilities.FaceUp(data, worldPosition);
