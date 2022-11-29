@@ -13,5 +13,6 @@ namespace WorldGen
         public float baseNoiseHeight = 4.0f;
         public int elevation = 15;
         public float frequency = 0.005f;
+        public Vector3 origin;
     }
 }

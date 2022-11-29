@@ -9,32 +9,45 @@ namespace WorldGen
     {
         //Create var grid of type Block with 3-Dimensions
         Block[,,] grid;
+
         //Reference to WorldChunkDetails
         WorldChunkDetails chunkDetails;
-        MeshData meshData;
-        public volatile bool jobDone;
 
+        //Reference to meshData
+        MeshData meshData;
+
+        //Volatile bool as it will change alot, determines if worldgenerations job is done
+        public volatile bool jobDone;
+        
+        //Used to variablize a function and set finishCallback as a ref
         public delegate void WorldGenerationCallback(Block[,,] grid, MeshData data);
         WorldGenerationCallback finishCallback;
 
-
+        //Called in RequestWorldGeneration - World.cs
         public WorldGeneration(WorldChunkDetails details, WorldGenerationCallback callback)
         {
             chunkDetails = details;
             finishCallback = callback;
         }
+        
+        //Called in jobThread to start a new job in World Update()
         public void StartCreatingWorld()
         {
-            //Calls CreateWorld to create mesh
-            meshData = CreateWorld();
+            //Calls CreateChunk to create mesh
+            meshData = CreateChunk();
+            //Assigns jobDone for Multithreading
             jobDone = true;
         }
+        
+        //Notifies when a job is complete
         public void NotifyComplete()
         {
+            //Using delegate function passing finished World Grid and meshData
             finishCallback(grid, meshData);
         }
+        
         //On call - loops through world grid and loads each block
-        MeshData CreateWorld()
+        MeshData CreateChunk()
         {
             //World grid to identify blocks. Set to bounds of world
             grid = new Block[chunkDetails.maxX, chunkDetails.elevation, chunkDetails.maxZ];
@@ -46,9 +59,6 @@ namespace WorldGen
             {
                 for (int z = 0; z < chunkDetails.maxZ; z++)
                 {
-                    //Setting default height value = 0
-                    float height = 0;
-
                     //Creating new Block
                     Block currentBlock = new Block();
                     //Setting currentBlock.x to loop iteration
@@ -58,16 +68,22 @@ namespace WorldGen
                     //Sets currentBlock to Solid
                     currentBlock.isSolid = true;
 
-                    //Sets default targetPosition to 0,0,0
+                    //Sets targetPosition to 0
                     Vector3 targetPosition = Vector3.zero;
                     //Adjusts targetPosition to X & Z loop iteration
-                    targetPosition.x = x * 1;
-                    targetPosition.z = z * 1;
+                    targetPosition.x += x * 1;
+                    targetPosition.z += z * 1;
+                    //Sets height value == 0
+                    float height = 0;
+
+                    Vector3 noisePosition = chunkDetails.origin;
+                    noisePosition.x += targetPosition.x;
+                    noisePosition.z += targetPosition.z;
 
                     //Calls GetNoise function and adds noise to height
-                    height += GetNoise(x, 0, z, chunkDetails.frequency, chunkDetails.elevation);
+                    height += GetNoise(noisePosition.x, 0, noisePosition.z, chunkDetails.frequency, chunkDetails.elevation);
                     //Set targetPosition.y == noise adjusted height
-                    targetPosition.y = height;
+                    targetPosition.y += height;
                     //Set currentBlock's worldPosition == targetPosition
                     currentBlock.worldPosition = targetPosition;
                     //Sets currentBlock.y == nosie adjusted height
@@ -91,8 +107,11 @@ namespace WorldGen
                 blocks[i].LoadBlock(data, this);
             }
 
+            data.origin = chunkDetails.origin;
+            
             return data;
         }
+        
         //Checks if block is null, if valid returns its grid position
         public Block GetBlock(int x, int y, int z)
         {
@@ -104,8 +123,9 @@ namespace WorldGen
 
             return grid[x, y, z];
         }
+        
         //Called in CreateWorld - Function to generate Noise from SimplexNoise library 
-        int GetNoise(int x, int y, int z, float scale, int maxHeight)
+        int GetNoise(float x, float y, float z, float scale, int maxHeight)
         {
             return Mathf.FloorToInt((Noise.Generate(x * scale, y * scale, z * scale) + 1) * (maxHeight / 2.0f));
         }

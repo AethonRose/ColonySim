@@ -8,17 +8,18 @@ namespace WorldGen
 {
     public class World : MonoBehaviour
     {
-        //Create var filter of type MeshFilter
-        MeshFilter filter;
+        public int worldX = 4;
+        public int worldZ = 4;
 
         //Initialize size of World & noise vars
-        public int maxX = 15;
-        public int maxZ = 15;
+        public int chunkX = 16;
+        public int chunkZ = 16;
         public float baseNoise = 0.02f;
         public float baseNoiseHeight = 4.0f;
         public int elevation = 15;
         public float frequency = 0.005f;
 
+        public Material material;
         Block[,,] grid;
 
         //Multhreading
@@ -26,14 +27,15 @@ namespace WorldGen
         List<WorldGeneration> toDoJobs = new List<WorldGeneration>();
         List<WorldGeneration> currentJobs = new List<WorldGeneration>();
 
+
         void Start()
         {
-            RequestWorldGeneration();
+            CreateWorld();
         }
-
         void Update()
         {
             int i = 0;
+            //If currentJob isDone, call NotifyComplete() and Remove job instance - else i++
             while(i < currentJobs.Count)
             {
                 if(currentJobs[i].jobDone)
@@ -49,12 +51,35 @@ namespace WorldGen
 
             if(toDoJobs.Count > 0 && currentJobs.Count < maxJobs)
             {
+                //Setting currentJob as type WorldGeneration == 1st toDoJob
                 WorldGeneration job = toDoJobs[0];
+                //Remove 1st toDoJob as it is now saved in job
                 toDoJobs.RemoveAt(0);
+                //Adding job to currentJobs List
                 currentJobs.Add(job);
 
+                //Calls StartCreatingWorld on job
                 Thread jobThread = new Thread(job.StartCreatingWorld);
                 jobThread.Start();
+            }
+        }
+        
+        void CreateWorld()
+        {
+            //Loops through set size of world
+            for(int x = 0; x < worldX; x++)
+            {
+                for(int z = 0; z < worldZ; z++)
+                {
+                    //Default chunkPosition == 0
+                    Vector3 chunkPosition = Vector3.zero;
+                    //Adjusts chunkPosition through loop iterations
+                    chunkPosition.x = x * chunkX;
+                    chunkPosition.z = z * chunkZ;
+
+                    //Requests WorldGeneration at chunkPosition
+                    RequestWorldGeneration(chunkPosition);
+                }
             }
         }
         //Loads all MeshData data into MeshData arrays - Called after CreateWorld in Start
@@ -62,9 +87,14 @@ namespace WorldGen
         {
             grid = createdGrid;
 
-            //Sets filter to MeshFilter reference
-            filter = GetComponent<MeshFilter>(); 
+            GameObject go = new GameObject(data.origin.ToString());
+            go.transform.position = data.origin;
 
+            //Adds MeshRenderer w/ Material & MeshFilter to GameObject go
+            MeshRenderer renderer = go.AddComponent<MeshRenderer>();
+            MeshFilter filter = go.AddComponent<MeshFilter>();
+            renderer.material = material;
+            
             //Creates new mesh and sets its Arrays
             Mesh mesh = new Mesh()
             {
@@ -74,30 +104,33 @@ namespace WorldGen
             };
 
             mesh.RecalculateNormals();
-            //Sets Mesh Filter == mesh
             filter.mesh = mesh;
         }  
+        
         //Checks if block is null, if valid returns its grid position
         public Block GetBlock(int x, int y, int z)
         {
             //Out of Bounds check
-            if(x < 0 || y < 0 || z < 0 || x >= maxX || y >= elevation || z >= maxZ)
+            if(x < 0 || y < 0 || z < 0 || x >= chunkX || y >= elevation || z >= chunkZ)
             {
                 return null;
             }
 
             return grid[x, y, z];
         }
-        public void RequestWorldGeneration()
+        
+        //Sets chunkDetails values in WorldChunkDetails and passed to WorldGeneration function in WorldGeneration.cs using LoadMeshData as a callback
+        public void RequestWorldGeneration(Vector3 chunkOrigin)
         {
             WorldChunkDetails details = new WorldChunkDetails
             {
-                maxX = maxX,
-                maxZ = maxZ,
+                maxX = chunkX,
+                maxZ = chunkZ,
                 baseNoise = baseNoise,
                 baseNoiseHeight = baseNoiseHeight,
                 elevation = elevation,
-                frequency = frequency
+                frequency = frequency,
+                origin = chunkOrigin
             };
             
             WorldGeneration worldGen = new WorldGeneration(details, LoadMeshData);
