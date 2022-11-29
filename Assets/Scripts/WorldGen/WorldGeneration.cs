@@ -50,7 +50,7 @@ namespace WorldGen
         MeshData CreateChunk()
         {
             //World grid to identify blocks. Set to bounds of world
-            grid = new Block[chunkDetails.maxX, chunkDetails.elevation, chunkDetails.maxZ];
+            grid = new Block[chunkDetails.maxX, chunkDetails.maxY, chunkDetails.maxZ];
             //Emptpy List of blocks to be filled, then loaded
             List<Block> blocks = new List<Block>();
             
@@ -80,8 +80,16 @@ namespace WorldGen
                     noisePosition.x += targetPosition.x;
                     noisePosition.z += targetPosition.z;
 
-                    //Calls GetNoise function and adds noise to height
-                    height += GetNoise(noisePosition.x, 0, noisePosition.z, chunkDetails.frequency, chunkDetails.elevation);
+                    if(chunkDetails.noisePatterns != null)
+                    {
+                        for(int i = 0; i < chunkDetails.noisePatterns.Length; i++)
+                        {
+                            NoiseBase n = chunkDetails.noisePatterns[i];
+
+                            height += n.Calculate(chunkDetails, noisePosition);
+                        }
+                    }
+                    
                     //Set targetPosition.y == noise adjusted height
                     targetPosition.y += height;
                     //Set currentBlock's worldPosition == targetPosition
@@ -89,6 +97,9 @@ namespace WorldGen
                     //Sets currentBlock.y == nosie adjusted height
                     currentBlock.y = Mathf.RoundToInt(height);
 
+                    if(height > chunkDetails.maxY)
+                        continue;
+                        
                     //Sets iterations grid value == currentBlock, since no y in for loop - using noise to get Y value
                     grid[x, currentBlock.y, z] = currentBlock;
                     //Adds current block into blocks List

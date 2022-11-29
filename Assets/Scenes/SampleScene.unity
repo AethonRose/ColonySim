@@ -167,16 +167,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2be6004655fd15147a8559d604c06eea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  worldX: 4
-  worldZ: 4
-  chunkX: 16
-  chunkZ: 16
-  baseNoise: 0.02
-  baseNoiseHeight: 4
-  elevation: 3
-  frequency: 0.1
   material: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
-  maxJobs: 100
+  maxJobs: 20
+  worldX: 20
+  worldZ: 20
+  chunkX: 50
+  chunkY: 10
+  chunkZ: 50
+  baseNoise: 0.01
+  baseNoiseHeight: 8
+  frequency: 0.01
+  elevation: 10
+  noisePatterns:
+  - {fileID: 11400000, guid: 08556b52d39c3644cb840856d14f3a34, type: 2}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

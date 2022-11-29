@@ -8,25 +8,33 @@ namespace WorldGen
 {
     public class World : MonoBehaviour
     {
-        public int worldX = 4;
-        public int worldZ = 4;
-
-        //Initialize size of World & noise vars
-        public int chunkX = 16;
-        public int chunkZ = 16;
-        public float baseNoise = 0.02f;
-        public float baseNoiseHeight = 4.0f;
-        public int elevation = 15;
-        public float frequency = 0.005f;
-
+        [Header("Base Material")]
         public Material material;
-        Block[,,] grid;
 
-        //Multhreading
+        [Header("Multithreading")]
         public int maxJobs = 4;
         List<WorldGeneration> toDoJobs = new List<WorldGeneration>();
         List<WorldGeneration> currentJobs = new List<WorldGeneration>();
 
+        [Header("World Size")]
+        public int worldX = 4;
+        public int worldZ = 4;
+
+        [Header("Chunk Size")]
+        public int chunkX = 16;
+        public int chunkY = 10;
+        public int chunkZ = 16;
+        [Header("Base Noise Settings")]
+        public float baseNoise = 0.02f;
+        public int baseNoiseHeight = 4;
+        [Header("Frequency Settings")]
+        public float frequency = 0.005f;
+        public int elevation = 15;
+        
+
+        Block[,,] grid;
+
+        public NoiseBase[] noisePatterns;
 
         void Start()
         {
@@ -125,12 +133,14 @@ namespace WorldGen
             WorldChunkDetails details = new WorldChunkDetails
             {
                 maxX = chunkX,
+                maxY = chunkY,
                 maxZ = chunkZ,
                 baseNoise = baseNoise,
                 baseNoiseHeight = baseNoiseHeight,
                 elevation = elevation,
                 frequency = frequency,
-                origin = chunkOrigin
+                origin = chunkOrigin,
+                noisePatterns = noisePatterns
             };
             
             WorldGeneration worldGen = new WorldGeneration(details, LoadMeshData);
