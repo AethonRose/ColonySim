@@ -11,33 +11,36 @@ namespace WorldGen
         [Header("Base Material")]
         public Material material;
 
-        [Header("Multithreading")]
+        [Header("Multithreading - Threads")]
         public int maxJobs = 4;
         List<WorldGeneration> toDoJobs = new List<WorldGeneration>();
         List<WorldGeneration> currentJobs = new List<WorldGeneration>();
 
         [Header("World Size")]
-        public int worldX = 4;
-        public int worldZ = 4;
+        public int worldSizeX = 4;
+        public int worldSizeZ = 4;
 
         [Header("Chunk Size")]
-        public int chunkX = 16;
-        public int chunkY = 10;
-        public int chunkZ = 16;
+        public int chunkSizeX = 16;
+        public int chunkSizeY = 10;
+        public int chunkSizeZ = 16;
+
         [Header("Base Noise Settings")]
         public float baseNoise = 0.02f;
         public int baseNoiseHeight = 4;
+
         [Header("Frequency Settings")]
         public float frequency = 0.005f;
         public int elevation = 15;
         
-
-        Block[,,] grid;
-
         public NoiseBase[] noisePatterns;
+        public GameObject parentObj;
+        public Chunk[,,] chunks;
 
         void Start()
         {
+            parentObj = new GameObject("World Parent");
+
             CreateWorld();
         }
         void Update()
@@ -74,29 +77,31 @@ namespace WorldGen
         
         void CreateWorld()
         {
-            //Loops through set size of world
-            for(int x = 0; x < worldX; x++)
-            {
-                for(int z = 0; z < worldZ; z++)
-                {
-                    //Default chunkPosition == 0
-                    Vector3 chunkPosition = Vector3.zero;
-                    //Adjusts chunkPosition through loop iterations
-                    chunkPosition.x = x * chunkX;
-                    chunkPosition.z = z * chunkZ;
+            chunks = new Chunk[worldSizeX + 1, 1, worldSizeZ + 1];
 
-                    //Requests WorldGeneration at chunkPosition
-                    RequestWorldGeneration(chunkPosition);
+            //Loops through set size of world
+            for(int x = 0; x < worldSizeX; x++)
+            {
+                for(int z = 0; z < worldSizeZ; z++)
+                {
+                    //Requests WorldGeneration, setting self variables for chunks 
+                    RequestWorldGeneration(x, z, chunkSizeX, chunkSizeZ);
                 }
             }
         }
         //Loads all MeshData data into MeshData arrays - Called after CreateWorld in Start
         public void LoadMeshData(Block[,,] createdGrid, MeshData data)
         {
-            grid = createdGrid;
+            //Calling Chunk in Chunk.cs to create a new chunk and add to createdGrid
+            Chunk newChunk = new Chunk(data.chunk_X, data.chunk_Y, data.chunk_Z, chunkSizeX, chunkSizeY, chunkSizeZ, createdGrid);
+            //Takes x,y,z of newChunk in Chunk[,,] chunks and sets that position == newChunk
+            chunks[newChunk.x, newChunk.y, newChunk.z] = newChunk;
 
             GameObject go = new GameObject(data.origin.ToString());
+            //Transforms created gameobject to be at MeshDatas data.origin
             go.transform.position = data.origin;
+            //Sets newChunks chunkPosition == MeshDatas data.origin
+            newChunk.chunkPosition = data.origin;
 
             //Adds MeshRenderer w/ Material & MeshFilter to GameObject go
             MeshRenderer renderer = go.AddComponent<MeshRenderer>();
@@ -112,41 +117,62 @@ namespace WorldGen
             };
 
             mesh.RecalculateNormals();
+
             filter.mesh = mesh;
+            go.AddComponent<MeshCollider>();
+
+            //Childs all created world meshes unter parentObj
+            go.transform.parent = parentObj.transform;
         }  
         
-        //Checks if block is null, if valid returns its grid position
-        public Block GetBlock(int x, int y, int z)
-        {
-            //Out of Bounds check
-            if(x < 0 || y < 0 || z < 0 || x >= chunkX || y >= elevation || z >= chunkZ)
-            {
-                return null;
-            }
-
-            return grid[x, y, z];
-        }
-        
         //Sets chunkDetails values in WorldChunkDetails and passed to WorldGeneration function in WorldGeneration.cs using LoadMeshData as a callback
-        public void RequestWorldGeneration(Vector3 chunkOrigin)
+        public void RequestWorldGeneration(int x, int z, int chunkSizeX, int chunkSizeZ)
         {
             WorldChunkDetails details = new WorldChunkDetails
             {
-                maxX = chunkX,
-                maxY = chunkY,
-                maxZ = chunkZ,
+                maxX = chunkSizeX,
+                maxY = chunkSizeY,
+                maxZ = chunkSizeZ,
+                chunk_X = x,
+                chunk_Z = z,
                 baseNoise = baseNoise,
                 baseNoiseHeight = baseNoiseHeight,
                 elevation = elevation,
                 frequency = frequency,
-                origin = chunkOrigin,
+                origin = new Vector3(x * chunkSizeX, 0, z * chunkSizeZ),
                 noisePatterns = noisePatterns
             };
             
             WorldGeneration worldGen = new WorldGeneration(details, LoadMeshData);
             toDoJobs.Add(worldGen);
+        }
 
+        //Called in FindMousePosition - Managers.cs
+        public Block GetBlockFromWorldPosition(Vector3 worldPos)
+        {
+            //Getting X,Y,Z location of chunk given a worldPosition
+            int c_x = Mathf.FloorToInt(worldPos.x / chunkSizeX); 
+            int c_y = Mathf.FloorToInt(worldPos.y / chunkSizeY);
+            int c_z = Mathf.FloorToInt(worldPos.z / chunkSizeZ);
+            //Set chunk == X,Y,Z positions just obtained
+            Chunk chunk = GetChunk(c_x, c_y, c_z);
 
+            if(chunk == null)
+                return null;
+
+            //Returns a blocks position at a given chunks position
+            return chunk.GetBlock(worldPos);
+        }
+
+        //Called in GetBlockFromWorldPosition
+        public Chunk GetChunk(int x, int y, int z)
+        {
+            if(x < 0 || y < 0 || z < 0 || x > worldSizeX - 1 || z > worldSizeZ - 1 || y > 0)
+            {   
+                return null;
+            }
+            //Returns chunk at given x,y,z from Chunk[,,] chunks
+            return chunks[x, y, z];
         }
     }
 }

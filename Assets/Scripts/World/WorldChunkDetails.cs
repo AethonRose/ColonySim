@@ -11,6 +11,10 @@ namespace WorldGen
         public int maxY = 10;
         public int maxZ = 15;
         
+        public int chunk_X;
+        public int chunk_Y;
+        public int chunk_Z;
+        
         public float baseNoise = 0.02f;
         public int baseNoiseHeight = 4;
         public int elevation = 15;

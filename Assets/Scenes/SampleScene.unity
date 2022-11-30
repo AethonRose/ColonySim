@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2be6004655fd15147a8559d604c06eea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  material: {fileID: 2100000, guid: 968d61fbeb8bf4140a2bac4b1ba2d15a, type: 2}
   maxJobs: 20
   worldX: 20
   worldZ: 20

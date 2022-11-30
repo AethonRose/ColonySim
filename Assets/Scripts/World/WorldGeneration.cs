@@ -35,6 +35,9 @@ namespace WorldGen
         {
             //Calls CreateChunk to create mesh
             meshData = CreateChunk();
+            meshData.chunk_X = chunkDetails.chunk_X;
+            meshData.chunk_Y = chunkDetails.chunk_Y;
+            meshData.chunk_Z = chunkDetails.chunk_Z;
             //Assigns jobDone for Multithreading
             jobDone = true;
         }
@@ -90,23 +93,22 @@ namespace WorldGen
                         }
                     }
                     
-                    //Set targetPosition.y == noise adjusted height
-                    targetPosition.y += height;
-                    //Set currentBlock's worldPosition == targetPosition
-                    currentBlock.worldPosition = targetPosition;
-                    //Sets currentBlock.y == nosie adjusted height
-                    currentBlock.y = Mathf.RoundToInt(height);
-
                     if(height > chunkDetails.maxY)
                         continue;
-                        
+
+                    //Set targetPosition.y == noise adjusted height
+                    targetPosition.y += height;
+                    //Set currentBlock localPosition to position relative to chunk
+                    currentBlock.localPosition = targetPosition;
+                    //Sets currentBlock worldPosition to position relative to world
+                    currentBlock.worldPosition = targetPosition + chunkDetails.origin;
+                    //Sets currentBlock.y == nosie adjusted height
+                    currentBlock.y = Mathf.RoundToInt(height);
+  
                     //Sets iterations grid value == currentBlock, since no y in for loop - using noise to get Y value
                     grid[x, currentBlock.y, z] = currentBlock;
                     //Adds current block into blocks List
                     blocks.Add(currentBlock);
-
-                    //Loads current block at targetPosition in this world
-                    //currentBlock.LoadBlock(data, this, targetPosition);
                 }
             }
             //Creates data for mesh of type MeshData
