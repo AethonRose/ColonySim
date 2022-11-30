@@ -43,6 +43,25 @@ namespace WorldGen
             //Calls GetBlock inside of Chunk.cs
             return GetBlock(x, y, z);
         }
+        
+        //Returns 1st block in chunk
+        public Block GetFirstSolidBlock()
+        {
+            for(int x = 0; x < maxX; x++)
+            {
+                for(int y = 0; x < maxY; y++)
+                {
+                    for(int z = 0; z < maxZ; z++)
+                    {
+                        if (grid[x,y,z] != null)
+                        {
+                            return grid[x,y,z];
+                        }
+                    }
+                }
+            }
+            return null;
+        }
 
         //Checks if block is null, if valid returns its grid position
         Block GetBlock(int x, int y, int z)

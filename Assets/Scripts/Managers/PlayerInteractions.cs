@@ -7,13 +7,16 @@ namespace WorldGen
     public class PlayerInteractions : MonoBehaviour
     {
         public World world;
+        public Transform visualizer;
+
+        Vector3 mousePosition;
+        Block currentBlock;
+        
 
         void Update() 
         {
-            if(Input.GetMouseButtonDown(0))
-            {
-                FindMousePosition();
-            }
+            FindMousePosition();
+            VisualizePosition();
         }
 
         void FindMousePosition()
@@ -23,20 +26,22 @@ namespace WorldGen
 
             if (Physics.Raycast(ray, out hit, 1000))
             {
+                mousePosition = hit.point;
+
                Block block = world.GetBlockFromWorldPosition(hit.point);
                if (block != null)
                {
-                    CreateBox(block.worldPosition + Vector3.up / 2);
+                    currentBlock = block;
                }
             }
         }
 
-        void CreateBox(Vector3 pos)
+        void VisualizePosition()
         {
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            Destroy(go.GetComponent<Collider>());
-
-            go.transform.position = pos;
+            if(currentBlock != null)
+            {
+                visualizer.transform.position = currentBlock.worldPosition + Vector3.one;
+            }
         }
     }
 }
