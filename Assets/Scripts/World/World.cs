@@ -37,7 +37,6 @@ namespace WorldGen
         public GameObject parentObj;
         public Chunk[,,] chunks;
 
-        public Transform unit;
         public bool isUnitPlaced;
         
         void Start()
@@ -92,6 +91,7 @@ namespace WorldGen
                 }
             }
         }
+        
         //Loads all MeshData data into MeshData arrays - Called after CreateWorld in Start
         public void LoadMeshData(Block[,,] createdGrid, MeshData data)
         {
@@ -132,7 +132,7 @@ namespace WorldGen
                 isUnitPlaced = true;
                 //Returns a solid block called spawnPoint & spawns colonist 1 above spawnPoint
                 Block spawnPoint = newChunk.GetFirstSolidBlock();
-                unit.transform.position = spawnPoint.worldPosition + Vector3.up;
+                PlayerInteractions.singleton.unit.transform.position = spawnPoint.worldPosition + Vector3.up;
             }
         }  
         

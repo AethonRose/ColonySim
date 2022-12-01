@@ -14,7 +14,7 @@ namespace WorldGen.Pathfinding
         List<Pathfinder> currentJobs = new List<Pathfinder>();
 
         //Delegate callback used in Pathfinder.cs, requires path List of type Block to complete
-        public delegate void PathCompleteCallback(List<Block> path);
+        public delegate void PathCompleteCallback(List<Block> path, Unit unit);
 
         //Getting World ref
         public World world;
@@ -53,22 +53,32 @@ namespace WorldGen.Pathfinding
         }
 
         //Starts process of Requesting A* path to be found
-        public void RequestPathFind(Block start, Block target)
+        public void RequestPathFind(Block start, Block target, Unit unit)
         {
             //Sets Pathfinder values of current pathJob
-            Pathfinder pathJob = new Pathfinder(world, start, target, PathCallback);
+            Pathfinder pathJob = new Pathfinder(world, start, target, PathCallback, unit);
             //Adds pathJob to toDoJobs List
             toDoJobs.Add(pathJob);
         }
 
         //Assigned delegate in Pathfinder.cs through pathJob in RequestPathFind()
-        void PathCallback(List<Block> path)
+        void PathCallback(List<Block> path, Unit unit)
         {
             if (path == null)
             {
                 return;
             }
 
+            //Have to reverse path as Retrace has to be backwards, reversing makes it forwards
+            path.Reverse();
+            //Calls LoadPath in Unit.cs; providing path
+            unit.LoadPath(path);
+
+            VisualizePath(path);
+        }
+
+        void VisualizePath(List<Block> path)
+        {
             //Visualize path
             GameObject go = new GameObject();
             LineRenderer l = go.AddComponent<LineRenderer>();

@@ -21,10 +21,12 @@ namespace WorldGen.Pathfinding
         int chunkSizeY = 10;
         int chunkSizeZ = 16;
 
+        Unit unit;
+
         PathfinderMaster.PathCompleteCallback callback;
 
         //Used to set values of current pathJob
-        public Pathfinder(World w, Block start, Block target, PathfinderMaster.PathCompleteCallback callback)
+        public Pathfinder(World w, Block start, Block target, PathfinderMaster.PathCompleteCallback callback, Unit unit)
         {
             startBlock = start;
             endBlock = target;
@@ -37,6 +39,7 @@ namespace WorldGen.Pathfinding
             chunkSizeZ = w.chunkSizeZ;
 
             this.callback = callback;
+            this.unit = unit;
         }
 
         //Invokes PathCompleteCallback
@@ -44,7 +47,7 @@ namespace WorldGen.Pathfinding
         {
             if (callback != null)
             {
-                callback.Invoke(path);
+                callback.Invoke(path, unit);
             }
         }
 
@@ -178,14 +181,14 @@ namespace WorldGen.Pathfinding
         Block GetNeighbor(Block search, Block current)
         {
             
-            int o_x = search.x - current.x;
-            int o_z = search.z - current.z;
+           // int o_x = search.x - current.x;
+            //int o_z = search.z - current.z;
 
             //If diagonal direction from origin x & z return null
-            if (o_x != 0 && o_z != 0)
-            {
-                return null;
-            }
+            //if (o_x != 0 && o_z != 0)
+            //{
+            //    return null;
+            //}
             
             return search;
         }

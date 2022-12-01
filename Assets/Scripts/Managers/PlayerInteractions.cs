@@ -9,6 +9,7 @@ namespace WorldGen
 
         //World ref
         public World world;
+        public Unit unit;
         public Transform visualizer;
 
         //PathfinderMaster ref
@@ -16,6 +17,12 @@ namespace WorldGen
 
         Vector3 mousePosition;
         Block targetBlock;
+
+        public static PlayerInteractions singleton;
+        void Awake()
+        {
+            singleton = this;
+        }
 
         void Update() 
         {
@@ -32,7 +39,7 @@ namespace WorldGen
                 if (targetBlock != null)
                 {
                     //Request a PathFind From: a units WorldPosition and Gets Block they are on, To: currentBlock
-                    pathFinderMaster.RequestPathFind(world.GetBlockFromWorldPosition(world.unit.position - Vector3.up), targetBlock);
+                    pathFinderMaster.RequestPathFind(world.GetBlockFromWorldPosition(unit.transform.position - Vector3.up), targetBlock, unit);
                 }
             }
         }
