@@ -6,19 +6,38 @@ namespace WorldGen
 {
     public class PlayerInteractions : MonoBehaviour
     {
+
+        //World ref
         public World world;
         public Transform visualizer;
 
+        //PathfinderMaster ref
+        public Pathfinding.PathfinderMaster pathFinderMaster;
+
         Vector3 mousePosition;
-        Block currentBlock;
-        
+        Block targetBlock;
 
         void Update() 
         {
             FindMousePosition();
             VisualizePosition();
+            RequestPath();
         }
 
+        //Requests a PathFind on targetBlock on MouseButtonDown
+        void RequestPath()
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (targetBlock != null)
+                {
+                    //Request a PathFind From: a units WorldPosition and Gets Block they are on, To: currentBlock
+                    pathFinderMaster.RequestPathFind(world.GetBlockFromWorldPosition(world.unit.position - Vector3.up), targetBlock);
+                }
+            }
+        }
+
+        //Finding MousePosition using rayCast
         void FindMousePosition()
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -31,16 +50,16 @@ namespace WorldGen
                Block block = world.GetBlockFromWorldPosition(hit.point);
                if (block != null)
                {
-                    currentBlock = block;
+                    targetBlock = block;
                }
             }
         }
 
         void VisualizePosition()
         {
-            if(currentBlock != null)
+            if(targetBlock != null)
             {
-                visualizer.transform.position = currentBlock.worldPosition + Vector3.one;
+                visualizer.transform.position = targetBlock.worldPosition + Vector3.one;
             }
         }
     }

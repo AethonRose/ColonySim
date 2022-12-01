@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 50006872}
   - component: {fileID: 50006873}
   - component: {fileID: 50006874}
+  - component: {fileID: 50006875}
   m_Layer: 0
   m_Name: World Generator
   m_TagString: Untagged
@@ -170,11 +171,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: 968d61fbeb8bf4140a2bac4b1ba2d15a, type: 2}
   maxJobs: 20
-  worldSizeX: 5
-  worldSizeZ: 5
-  chunkSizeX: 50
+  worldSizeX: 2
+  worldSizeZ: 2
+  chunkSizeX: 20
   chunkSizeY: 10
-  chunkSizeZ: 50
+  chunkSizeZ: 20
   baseNoise: 0.02
   baseNoiseHeight: 4
   frequency: 0.05
@@ -182,8 +183,8 @@ MonoBehaviour:
   noisePatterns:
   - {fileID: 11400000, guid: 08556b52d39c3644cb840856d14f3a34, type: 2}
   parentObj: {fileID: 0}
-  isColonistPlaced: 0
   colonist: {fileID: 699410499}
+  isColonistPlaced: 0
 --- !u!114 &50006874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198,6 +199,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   world: {fileID: 50006873}
   visualizer: {fileID: 1278332778}
+  pathFinder: {fileID: 50006875}
+--- !u!114 &50006875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 50006868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4fe7391fc71675442a399caff7cc970e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxJobs: 4
+  world: {fileID: 50006873}
 --- !u!1 &699410496
 GameObject:
   m_ObjectHideFlags: 0

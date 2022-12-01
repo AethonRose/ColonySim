@@ -37,9 +37,9 @@ namespace WorldGen
         public GameObject parentObj;
         public Chunk[,,] chunks;
 
-        public bool isColonistPlaced;
-        public Transform colonist;
-
+        public Transform unit;
+        public bool isUnitPlaced;
+        
         void Start()
         {
             parentObj = new GameObject("World Parent");
@@ -127,12 +127,12 @@ namespace WorldGen
             //Childs all created world meshes unter parentObj
             go.transform.parent = parentObj.transform;
 
-            if(!isColonistPlaced)
+            if(!isUnitPlaced)
             {
-                isColonistPlaced = true;
+                isUnitPlaced = true;
                 //Returns a solid block called spawnPoint & spawns colonist 1 above spawnPoint
                 Block spawnPoint = newChunk.GetFirstSolidBlock();
-                colonist.transform.position = spawnPoint.worldPosition + Vector3.up;
+                unit.transform.position = spawnPoint.worldPosition + Vector3.up;
             }
         }  
         

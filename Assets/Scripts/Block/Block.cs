@@ -10,9 +10,24 @@ namespace WorldGen
         public int x;
         public int y;
         public int z;
+
         public Vector3 localPosition;
         public Vector3 worldPosition;
+
         public bool isSolid;
+
+        //Pathfinding
+        public Block parentBlock;
+        
+        public float hCost;
+        public float gCost;
+        public float fCost 
+        {
+            get
+            {
+                return gCost + hCost;
+            }
+        }
 
         //Creates each block at its own respective worldPosition
         public virtual void LoadBlock(MeshData data, WorldGeneration world)
