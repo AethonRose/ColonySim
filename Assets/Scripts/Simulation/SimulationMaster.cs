@@ -15,9 +15,14 @@ namespace WorldGen.Simulation
         public Color water;
 
         public Node[,] grid;
+        Node[,] gridClone;
 
         int maxX;
         int maxY;
+
+        //Conways Game of Life
+        public int startGroundRate = 45;
+        public Simulation currentStep;
 
         void Start() 
         {
@@ -29,31 +34,37 @@ namespace WorldGen.Simulation
             //Instantiating worldSprite into newSprite
             worldSprite = Instantiate(worldBaseSprite);
 
+            //Setting maxX and maxY to worldSprites width and height
             maxX = worldSprite.texture.width;
             maxY = worldSprite.texture.height;
 
+            //Creating grid to width x height of worldSprite
             grid = new Node[maxX, maxY];
 
-            //Loops through width & height or newSprite
+            //Loops through width & height or worldSprite
             for (int x = 0; x < maxX; x++)
             {
                 for (int y = 0; y < maxY; y++)
                 {
+                    //Creating each pixel as a node, setting n.x & n.y == pixels location
                     Node n = new Node();
                     n.x = x;
                     n.y = y;
 
+                    //Setting each pixel == n
                     grid[x, y] = n;
 
                     //If Random(0-100) < 20 set x,y pixel of texture to ground
-                    if (Random.Range(0, 100) < 20)
+                    if (Random.Range(0, 100) < startGroundRate)
                     {
                         n.isGround = true;
+                        //Setting pixel at x,y position to ground color
                         worldSprite.texture.SetPixel(x, y, ground);
                     }
                     else
                     {
                         n.isGround = false;
+                        //Setting pixel at x,y position to water color
                         worldSprite.texture.SetPixel(x, y, water);
                     }
                 }
@@ -61,18 +72,25 @@ namespace WorldGen.Simulation
 
             //Applying texture changes
             worldSprite.texture.Apply();
-
+            //Setting spriteRederer sprite to the worldSprite
             spriteRenderer.sprite = worldSprite;
         }
     
         public void Step()
         {
+            //Copying grid into cloneGrid
+            gridClone = new Node[maxX, maxY];
+            System.Array.Copy(grid, gridClone, grid.Length);
+
+            //Loops through width & height or worldSprite
             for (int x = 0; x < maxX; x++)
             {
                 for (int y = 0; y < maxY; y++)
                 {
+                    //Creating each pixel as a node, setting n.x & n.y == pixels location
                     Node n = grid[x, y];
 
+                    //Getting isAlive value by calling IsAlive and giving n pixel
                     bool isAlive = IsAlive(n);
                     if(isAlive)
                     {
@@ -89,6 +107,8 @@ namespace WorldGen.Simulation
             }
 
             worldSprite.texture.Apply();
+            //Clearing gridClone as next step generated new gridClone
+            gridClone = null;
         }
 
         //Way to call Step multiple times; Given t
@@ -102,67 +122,12 @@ namespace WorldGen.Simulation
 
         public bool IsAlive(Node n)
         {
-            bool result = false;
-            int count = 0;
+            return currentStep.isAlive(n, gridClone, maxX, maxY);
 
-            for (int x = -1; x <= 1; x++)
-            {
-                for (int y = -1; y <= 1; y++)
-                {
-                    int targetX = x + n.x;
-                    int targetY = y + n.y;
-
-                    if(targetX == n.x && targetY == n.y)
-                        continue;
-
-                    Node neighborNode = GetNode(targetX, targetY);
-                    if (neighborNode != null)
-                    {
-                        if(neighborNode.isGround)
-                        {
-                            count++;
-                        }
-                    }
-                }
-            }
-
-            if (n.isGround)
-            {
-                if (count < 2)
-                {
-                    result = false;
-                }
-
-                if (count >= 2)
-                {
-                    result = true;
-                }
-
-                if (count > 3)
-                {
-                    result = false;
-                }
-            }
-            else
-            {
-                if (count == 3)
-                {
-                    result = true;
-                }
-            }
-
-            return result;   
+              
         }
 
-        Node GetNode(int x, int y)
-        {
-            if (x < 0 || y < 0 || x > maxX - 1 || y > maxY - 1)
-            {
-                return null;
-            }
-
-            return grid[x, y];
-        }
+       
     }
 }
 
