@@ -6,17 +6,36 @@ namespace WorldGen.Simulation
 {
     public abstract class Simulation : ScriptableObject
     {
-        public abstract bool isAlive(Node n, Node[,] gridClone, int maxX, int maxY);
+        public abstract NodeState GetNodeState(Node pixel, Node[,] gridClone, int maxX, int maxY);
 
-        //Given an x (width) and y (height) position; returns position of pixel in grid
+        //Given an x (width) and y (height) position; returns position of pixel in gridClone
         protected Node GetNodeInClone(int x, int y, int maxX, int maxY, Node[,] gridClone)
         {
-            if (x < 0 || y < 0 || x > maxX - 1 || y > maxY - 1)
+            int _x = x;
+            int _y = y;
+
+            //Smooths World Generation, by relating edges to eachother (making circular - sort of)
+            if (x < 0)
             {
-                return null;
+                _x = maxX - 1;
             }
 
-            return gridClone[x, y];
+            if (x > maxX - 1)
+            {
+                _x = 0;
+            }
+
+            if(y < 0)
+            {
+                _y = maxY - 1;
+            }
+
+            if (y > maxY - 1)
+            {
+                _y = 0;
+            }
+
+            return gridClone[_x, _y];
         }
     }
 }

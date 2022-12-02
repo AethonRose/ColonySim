@@ -1031,8 +1031,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 1026105162}
   worldBaseSprite: {fileID: 21300000, guid: 1fa101921640f6444b18fd38c0fce395, type: 3}
-  ground: {r: 0.6037736, g: 0.33998674, b: 0.16803133, a: 0}
-  water: {r: 0.22027414, g: 0.63543504, b: 0.8490566, a: 0}
+  water: {r: 0.22027414, g: 0.63543504, b: 0.8490566, a: 1}
+  ground: {r: 0.6037736, g: 0.33998674, b: 0.16803133, a: 1}
+  grass: {r: 0.09114087, g: 0.3962264, b: 0.06915272, a: 1}
+  sand: {r: 0.9622642, g: 0.94471645, b: 0.36765754, a: 1}
+  startGroundRate: 45
+  currentStep: {fileID: 11400000, guid: 020da93f93d8e394f9a4b435274c773d, type: 2}
+  beachStep: {fileID: 11400000, guid: cf1efccc6c95d944c86a186ce51c23ba, type: 2}
 --- !u!4 &2147389712
 Transform:
   m_ObjectHideFlags: 0

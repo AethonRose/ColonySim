@@ -11,10 +11,10 @@ namespace WorldGen.Simulation
         public int death = 3;
         public int birth = 4;
 
-        public override bool isAlive(Node n, Node[,] gridClone, int maxX, int maxY)
+        public override NodeState GetNodeState(Node pixel, Node[,] gridClone, int maxX, int maxY)
         {
-            //result is returning value - basically isAlive
-            bool result = false;
+            //result is returning value - basically isAlive - Default NodeState water
+            NodeState result = NodeState.water;
             //count = number of alive pixels around a given pixel
             int count = 0;
 
@@ -24,11 +24,11 @@ namespace WorldGen.Simulation
                 for (int y = -1; y <= 1; y++)
                 {
                     //Adding loop iteration to node x & y to get positions of neighboring nodes/pixels
-                    int targetX = x + n.x;
-                    int targetY = y + n.y;
+                    int targetX = x + pixel.x;
+                    int targetY = y + pixel.y;
 
 
-                    if(targetX == n.x && targetY == n.y)
+                    if(targetX == pixel.x && targetY == pixel.y)
                         continue;
 
                     //Using GetNode to return grid value of neighboring node
@@ -43,27 +43,30 @@ namespace WorldGen.Simulation
                     }
                     else
                     {
-                        //result = false?
-                        return false;
+                        return NodeState.water;
                     }
                 }
             }
             //Conways Game of Life algorithm - https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
             //If cell isAlive / isGround
-            if (n.isGround)
+            if (pixel.isGround)
             {
                 if (count < death)
-                    result = false;
+                {
+                    result = NodeState.water;
+                }
                 else
-                    result = true;
+                {
+                    result = NodeState.grass;
+                }
             }
             //If cell isDead / !isGround
             else
             {
                 if (count > birth)
-                    result = true;
+                    result = NodeState.ground;
                 else
-                    result = false;
+                    result = NodeState.water;
             }
 
             return result;
